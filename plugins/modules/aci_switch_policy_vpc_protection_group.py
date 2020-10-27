@@ -22,13 +22,11 @@ options:
     description:
     - The name of the Explicit vPC Protection Group.
     type: str
-    required: yes
     aliases: [ name, protection_group_name ]
   protection_group_id:
     description:
     - The Explicit vPC Protection Group ID.
     type: int
-    required: yes
     aliases: [ id ]
   vpc_domain_policy:
     description:
@@ -39,12 +37,10 @@ options:
     description:
     - The ID of the first Leaf Switch for the Explicit vPC Protection Group.
     type: int
-    required: yes
   switch_2_id:
     description:
     - The ID of the Second Leaf Switch for the Explicit vPC Protection Group.
     type: int
-    required: yes
   state:
     description:
     - Use C(present) or C(absent) for adding or removing.
@@ -60,7 +56,7 @@ extends_documentation_fragment:
 - cisco.aci.aci
 
 seealso:
-- module: aci_switch_policy_leaf_profile
+- module: cisco.aci.aci_switch_policy_leaf_profile
 - name: APIC Management Information Model reference
   description: More information about the internal APIC classes B(fabric:ExplicitGEp) and B(fabric:NodePEp).
   link: https://developer.cisco.com/docs/apic-mim-ref/

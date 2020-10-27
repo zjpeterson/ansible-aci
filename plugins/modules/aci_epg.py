@@ -26,13 +26,11 @@ options:
     description:
     - Name of an existing application network profile, that will contain the EPGs.
     type: str
-    required: yes
     aliases: [ app_profile, app_profile_name ]
   epg:
     description:
     - Name of the end point group.
     type: str
-    required: yes
     aliases: [ epg_name, name ]
   bd:
     description:
@@ -84,10 +82,10 @@ extends_documentation_fragment:
 
 notes:
 - The C(tenant) and C(app_profile) used must exist before using this module in your playbook.
-  The M(aci_tenant) and M(aci_ap) modules can be used for this.
+  The M(cisco.aci.aci_tenant) and M(cisco.aci.aci_ap) modules can be used for this.
 seealso:
-- module: aci_tenant
-- module: aci_ap
+- module: cisco.aci.aci_tenant
+- module: cisco.aci.aci_ap
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(fv:AEPg).
   link: https://developer.cisco.com/docs/apic-mim-ref/

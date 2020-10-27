@@ -386,6 +386,12 @@ def main():
     state = module.params.get('state')
     name_alias = module.params.get('name_alias')
 
+    aci = ACIModule(module)
+    if lag_type == 'leaf' and port_channel_policy is not None:
+        aci.fail_json('port_channel_policy is not a valid parameter for leaf\
+ (leaf access port policy group), if used\
+ assign null to it (port_channel_policy: null).')
+
     if lag_type == 'leaf':
         aci_class_name = 'infraAccPortGrp'
         dn_name = 'accportgrp'
@@ -524,7 +530,6 @@ def main():
             ),
         ))
 
-    aci = ACIModule(module)
     aci.construct_url(
         root_class=dict(
             aci_class=aci_class_name,

@@ -27,6 +27,7 @@ options:
     description:
     - Determines if the Domain is physical (phys) or virtual (vmm).
     type: str
+    required: yes
     choices: [ fc, l2dom, l3dom, phys, vmm ]
   pool:
     description:
@@ -59,10 +60,10 @@ extends_documentation_fragment:
 
 notes:
 - The C(domain) and C(vlan_pool) parameters should exist before using this module.
-  The M(aci_domain) and M(aci_vlan_pool) can be used for these.
+  The M(cisco.aci.aci_domain) and M(cisco.aci.aci_vlan_pool) can be used for these.
 seealso:
-- module: aci_domain
-- module: aci_vlan_pool
+- module: cisco.aci.aci_domain
+- module: cisco.aci.aci_vlan_pool
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(infra:RsVlanNs).
   link: https://developer.cisco.com/docs/apic-mim-ref/

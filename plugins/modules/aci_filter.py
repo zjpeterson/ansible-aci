@@ -16,13 +16,12 @@ module: aci_filter
 short_description: Manages top level filter objects (vz:Filter)
 description:
 - Manages top level filter objects on Cisco ACI fabrics.
-- This modules does not manage filter entries, see M(aci_filter_entry) for this functionality.
+- This modules does not manage filter entries, see M(cisco.aci.aci_filter_entry) for this functionality.
 options:
   filter:
     description:
     - The name of the filter.
     type: str
-    required: yes
     aliases: [ filter_name, name ]
   description:
     description:
@@ -33,7 +32,6 @@ options:
     description:
     - The name of the tenant.
     type: str
-    required: yes
     aliases: [ tenant_name ]
   state:
     description:
@@ -51,9 +49,9 @@ extends_documentation_fragment:
 
 notes:
 - The C(tenant) used must exist before using this module in your playbook.
-  The M(aci_tenant) module can be used for this.
+  The M(cisco.aci.aci_tenant) module can be used for this.
 seealso:
-- module: aci_tenant
+- module: cisco.aci.aci_tenant
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(vz:Filter).
   link: https://developer.cisco.com/docs/apic-mim-ref/

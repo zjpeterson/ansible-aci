@@ -19,7 +19,7 @@ description:
 - Bind Domain to Encap Pools on Cisco ACI fabrics.
 notes:
 - The C(domain) and C(encap_pool) parameters should exist before using this module.
-  The M(aci_domain) and M(aci_encap_pool) can be used for these.
+  The M(cisco.aci.aci_domain) and M(cisco.aci.aci_encap_pool) can be used for these.
 options:
   domain:
     description:
@@ -30,6 +30,7 @@ options:
     description:
     - Determines if the Domain is physical (phys) or virtual (vmm).
     type: str
+    required: yes
     choices: [ fc, l2dom, l3dom, phys, vmm ]
   pool:
     description:
@@ -67,8 +68,8 @@ extends_documentation_fragment:
 - cisco.aci.aci
 
 seealso:
-- module: aci_domain
-- module: aci_encap_pool
+- module: cisco.aci.aci_domain
+- module: cisco.aci.aci_encap_pool
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(infra:RsVlanNs).
   link: https://developer.cisco.com/docs/apic-mim-ref/

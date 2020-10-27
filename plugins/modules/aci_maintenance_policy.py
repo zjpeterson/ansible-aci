@@ -23,7 +23,6 @@ options:
     description:
     - The name for the maintenance policy.
     type: str
-    required: true
     aliases: [ maintenance_policy ]
   runmode:
     description:
@@ -40,7 +39,6 @@ options:
     description:
     - The name of scheduler that is applied to the policy.
     type: str
-    required: true
   adminst:
     description:
     - Will trigger an immediate upgrade for nodes if adminst is set to triggered.
@@ -67,7 +65,7 @@ extends_documentation_fragment:
 - cisco.aci.aci
 
 notes:
-- A scheduler is required for this module, which could have been created using the M(aci_fabric_scheduler) module or via the UI.
+- A scheduler is required for this module, which could have been created using the M(cisco.aci.aci_fabric_scheduler) module or via the UI.
 author:
 - Steven Gerhart (@sgerhart)
 '''

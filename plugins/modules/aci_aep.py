@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# Copyright: (c) 2020, Shreyas Srish <ssrish@cisco.com>
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -22,7 +23,6 @@ options:
     description:
     - The name of the Attachable Access Entity Profile.
     type: str
-    required: yes
     aliases: [ aep_name, name ]
   description:
     description:
@@ -51,12 +51,13 @@ extends_documentation_fragment:
 - cisco.aci.aci
 
 seealso:
-- module: aci_aep_to_domain
+- module: cisco.aci.aci_aep_to_domain
 - name: APIC Management Information Model reference
   description: More information about the internal APIC classes B(infra:AttEntityP) and B(infra:ProvAcc).
   link: https://developer.cisco.com/docs/apic-mim-ref/
 author:
 - Swetha Chunduri (@schunduri)
+- Shreyas Srish (@shrsr)
 '''
 
 EXAMPLES = r'''
@@ -67,6 +68,7 @@ EXAMPLES = r'''
     password: SomeSecretPassword
     aep: ACI-AEP
     description: default
+    infra_vlan: true
     state: present
   delegate_to: localhost
 
@@ -247,10 +249,19 @@ def main():
             module_object=aep,
             target_filter={'name': aep},
         ),
+        child_classes=['infraProvAcc']
     )
+
     aci.get_existing()
 
+    try:
+        if len(aci.existing[0]['infraAttEntityP']) == 1 and infra_vlan is False:
+            child_configs = []
+    except Exception:
+        pass
+
     if state == 'present':
+
         aci.payload(
             aci_class='infraAttEntityP',
             class_config=dict(

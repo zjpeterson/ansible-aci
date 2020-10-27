@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright: (c) 2017, Bruno Calogero <brunocalogero@hotmail.com>
+# Copyright: (c) 2020, Shreyas Srish <ssrish@cisco.com>
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
@@ -18,12 +19,11 @@ short_description: Manage fabric interface policy leaf profiles (infra:AccPortP)
 description:
 - Manage fabric interface policy leaf profiles on Cisco ACI fabrics.
 options:
-  leaf_interface_profile:
+  interface_profile:
     description:
     - The name of the Fabric access policy leaf interface profile.
     type: str
-    required: yes
-    aliases: [ name, leaf_interface_profile_name ]
+    aliases: [ name, leaf_interface_profile_name, leaf_interface_profile, interface_profile_name ]
   description:
     description:
     - Description for the Fabric access policy leaf interface profile.
@@ -40,6 +40,12 @@ options:
     description:
     - The alias for the current object. This relates to the nameAlias field in ACI.
     type: str
+  type:
+    description:
+    - The type of profile to be created.
+    type: str
+    choices: [ fex, leaf ]
+    default: leaf
 extends_documentation_fragment:
 - cisco.aci.aci
 
@@ -49,6 +55,7 @@ seealso:
   link: https://developer.cisco.com/docs/apic-mim-ref/
 author:
 - Bruno Calogero (@brunocalogero)
+- Shreyas Srish (@shrsr)
 '''
 
 EXAMPLES = r'''
@@ -57,8 +64,19 @@ EXAMPLES = r'''
     host: apic
     username: admin
     password: SomeSecretPassword
-    leaf_interface_profile: leafintprfname
+    interface_profile: leafintprfname
     description:  leafintprfname description
+    state: present
+  delegate_to: localhost
+
+- name: Add a new leaf_interface_profile of type fex
+  cisco.aci.aci_interface_policy_leaf_profile:
+    host: apic
+    username: admin
+    password: SomeSecretPassword
+    interface_profile: leafintprfname_fex
+    type: fex
+    description: leafintprfname description
     state: present
   delegate_to: localhost
 
@@ -67,15 +85,17 @@ EXAMPLES = r'''
     host: apic
     username: admin
     password: SomeSecretPassword
-    leaf_interface_profile: leafintprfname
+    interface_profile: leafintprfname
     state: absent
   delegate_to: localhost
 
-- name: Remove all leaf_interface_profiles
+- name: Remove a leaf_interface_profile of type fex
   cisco.aci.aci_interface_policy_leaf_profile:
     host: apic
     username: admin
     password: SomeSecretPassword
+    interface_profile: leafintprfname_fex
+    type: fex
     state: absent
   delegate_to: localhost
 
@@ -84,10 +104,38 @@ EXAMPLES = r'''
     host: apic
     username: admin
     password: SomeSecretPassword
-    leaf_interface_profile: leafintprfname
+    interface_profile: leafintprfname
     state: query
   delegate_to: localhost
   register: query_result
+
+- name: Query a leaf_interface_profile of type fex
+  cisco.aci.aci_interface_policy_leaf_profile:
+    host: apic
+    username: admin
+    password: SomeSecretPassword
+    interface_profile: leafintprfname_fex
+    type: fex
+    state: query
+  delegate_to: localhost
+  register: query_result
+
+- name: Query all leaf_interface_profiles
+  cisco.aci.aci_interface_policy_leaf_profile:
+    host: apic
+    username: admin
+    password: SomeSecretPassword
+    state: query
+  delegate_to: localhost
+
+- name: Query all leaf_interface_profiles of type fex
+  cisco.aci.aci_interface_policy_leaf_profile:
+    host: apic
+    username: admin
+    password: SomeSecretPassword
+    type: fex
+    state: query
+  delegate_to: localhost
 '''
 
 RETURN = r'''
@@ -202,48 +250,56 @@ from ansible_collections.cisco.aci.plugins.module_utils.aci import ACIModule, ac
 def main():
     argument_spec = aci_argument_spec()
     argument_spec.update(
-        leaf_interface_profile=dict(type='str', aliases=['name', 'leaf_interface_profile_name']),  # Not required for querying all objects
+        interface_profile=dict(type='str', aliases=['name', 'leaf_interface_profile_name', 'leaf_interface_profile', 'interface_profile_name']),
         description=dict(type='str', aliases=['descr']),
         state=dict(type='str', default='present', choices=['absent', 'present', 'query']),
         name_alias=dict(type='str'),
+        type=dict(type='str', default='leaf', choices=['fex', 'leaf']),
     )
 
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
         required_if=[
-            ['state', 'absent', ['leaf_interface_profile']],
-            ['state', 'present', ['leaf_interface_profile']],
+            ['state', 'absent', ['interface_profile']],
+            ['state', 'present', ['interface_profile']],
         ],
     )
 
-    leaf_interface_profile = module.params.get('leaf_interface_profile')
+    interface_profile = module.params.get('interface_profile')
     description = module.params.get('description')
     state = module.params.get('state')
     name_alias = module.params.get('name_alias')
+    type_profile = module.params.get('type')
 
     aci = ACIModule(module)
+    aci_class = 'infraAccPortP'
+    aci_rn = 'accportprof'
+    if type_profile == 'fex':
+        aci_class = 'infraFexP'
+        aci_rn = 'fexprof'
     aci.construct_url(
         root_class=dict(
-            aci_class='infraAccPortP',
-            aci_rn='infra/accportprof-{0}'.format(leaf_interface_profile),
-            module_object=leaf_interface_profile,
-            target_filter={'name': leaf_interface_profile},
+            aci_class=aci_class,
+            aci_rn='infra/' + aci_rn + '-{0}'.format(interface_profile),
+            module_object=interface_profile,
+            target_filter={'name': interface_profile},
         ),
     )
+
     aci.get_existing()
 
     if state == 'present':
         aci.payload(
-            aci_class='infraAccPortP',
+            aci_class=aci_class,
             class_config=dict(
-                name=leaf_interface_profile,
+                name=interface_profile,
                 descr=description,
                 nameAlias=name_alias,
             ),
         )
 
-        aci.get_diff(aci_class='infraAccPortP')
+        aci.get_diff(aci_class=aci_class)
 
         aci.post_config()
 

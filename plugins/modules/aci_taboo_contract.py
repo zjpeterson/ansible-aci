@@ -22,7 +22,6 @@ options:
     description:
     - The name of the Taboo Contract.
     type: str
-    required: yes
     aliases: [ name ]
   description:
     description:
@@ -33,7 +32,6 @@ options:
     description:
     - The name of the tenant.
     type: str
-    required: yes
     aliases: [ tenant_name ]
   scope:
     description:
@@ -57,9 +55,9 @@ extends_documentation_fragment:
 
 notes:
 - The C(tenant) used must exist before using this module in your playbook.
-  The M(aci_tenant) module can be used for this.
+  The M(cisco.aci.aci_tenant) module can be used for this.
 seealso:
-- module: aci_tenant
+- module: cisco.aci.aci_tenant
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(vz:BrCP).
   link: https://developer.cisco.com/docs/apic-mim-ref/

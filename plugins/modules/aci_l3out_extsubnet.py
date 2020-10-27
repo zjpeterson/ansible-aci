@@ -21,25 +21,24 @@ options:
     description:
     - Name of an existing tenant.
     type: str
-    required: yes
     aliases: [ tenant_name ]
+    required: yes
   l3out:
     description:
     - Name of an existing L3Out.
     type: str
-    required: yes
     aliases: [ l3out_name ]
+    required: yes
   extepg:
     description:
     - Name of an existing ExtEpg.
     type: str
-    required: yes
     aliases: [ extepg_name ]
+    required: yes
   network:
     description:
     - The network address for the Subnet.
     type: str
-    required: yes
     aliases: [ address, ip ]
   subnet_name:
     description:
@@ -60,7 +59,9 @@ options:
     - The C(shared-rtctrl) option controls which external prefixes are advertised to other tenants for shared services.
     - The C(shared-security) option configures the classifier for the subnets in the VRF where the routes are leaked.
     - The APIC defaults to C(import-security) when unset during creation.
+    default: [ import-security ]
     type: list
+    elements: str
     choices: [ export-rtctrl, import-security, shared-rtctrl, shared-security ]
   state:
     description:
@@ -78,16 +79,17 @@ extends_documentation_fragment:
 
 notes:
 - The C(tenant) and C(domain) and C(vrf) used must exist before using this module in your playbook.
-  The M(aci_tenant) and M(aci_domain) and M(aci_vrf) modules can be used for this.
+  The M(cisco.aci.aci_tenant) and M(cisco.aci.aci_domain) and M(cisco.aci.aci_vrf) modules can be used for this.
 seealso:
-- module: aci_tenant
-- module: aci_domain
-- module: aci_vrf
+- module: cisco.aci.aci_tenant
+- module: cisco.aci.aci_domain
+- module: cisco.aci.aci_vrf
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(l3ext:Out).
   link: https://developer.cisco.com/docs/apic-mim-ref/
 author:
 - Rostyslav Davydenko (@rost-d)
+- Cindy Zhao (@cizhao)
 '''
 
 EXAMPLES = r'''
@@ -117,7 +119,7 @@ EXAMPLES = r'''
     state: absent
   delegate_to: localhost
 
-- name: Query ExtEpg information
+- name: Query ExtEpg Subnet information
   cisco.aci.aci_l3out_extsubnet:
     host: apic
     username: admin
@@ -243,13 +245,13 @@ from ansible_collections.cisco.aci.plugins.module_utils.aci import ACIModule, ac
 def main():
     argument_spec = aci_argument_spec()
     argument_spec.update(
-        tenant=dict(type='str', aliases=['tenant_name']),  # Not required for querying all objects
-        l3out=dict(type='str', aliases=['l3out_name']),  # Not required for querying all objects
-        extepg=dict(type='str', aliases=['extepg_name', 'name']),  # Not required for querying all objects
+        tenant=dict(type='str', required=True, aliases=['tenant_name']),
+        l3out=dict(type='str', required=True, aliases=['l3out_name']),
+        extepg=dict(type='str', required=True, aliases=['extepg_name', 'name']),
         network=dict(type='str', aliases=['address', 'ip']),
         description=dict(type='str', aliases=['descr']),
         subnet_name=dict(type='str', aliases=['name']),
-        scope=dict(type='list', choices=['export-rtctrl', 'import-security', 'shared-rtctrl', 'shared-security']),
+        scope=dict(type='list', elements='str', default=['import-security'], choices=['export-rtctrl', 'import-security', 'shared-rtctrl', 'shared-security']),
         state=dict(type='str', default='present', choices=['absent', 'present', 'query']),
         name_alias=dict(type='str'),
     )

@@ -35,7 +35,6 @@ options:
     description:
     - The export policy that the C(snapshot) is associated to.
     type: str
-    required: yes
   fail_on_decrypt:
     description:
     - Determines if the APIC should fail the rollback if unable to decrypt secured data.
@@ -74,7 +73,7 @@ extends_documentation_fragment:
 - cisco.aci.aci
 
 seealso:
-- module: aci_config_snapshot
+- module: cisco.aci.aci_config_snapshot
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(config:ImportP).
   link: https://developer.cisco.com/docs/apic-mim-ref/

@@ -73,6 +73,7 @@ options:
     - The value is a list of options, C(private) and C(public) are mutually exclusive, but both can be used with C(shared).
     - The APIC defaults to C(private) when unset during creation.
     type: list
+    elements: str
     choices:
       - private
       - public
@@ -114,10 +115,10 @@ notes:
 - The C(gateway) parameter is the root key used to access the Subnet (not name), so the C(gateway)
   is required when the state is C(absent) or C(present).
 - The C(tenant) and C(bd) used must exist before using this module in your playbook.
-  The M(aci_tenant) module and M(aci_bd) can be used for these.
+  The M(cisco.aci.aci_tenant) module and M(cisco.aci.aci_bd) can be used for these.
 seealso:
-- module: aci_bd
-- module: aci_tenant
+- module: cisco.aci.aci_bd
+- module: cisco.aci.aci_tenant
 - name: APIC Management Information Model reference
   description: More information about the internal APIC class B(fv:Subnet).
   link: https://developer.cisco.com/docs/apic-mim-ref/
@@ -362,7 +363,7 @@ def main():
         preferred=dict(type='bool'),
         route_profile=dict(type='str'),
         route_profile_l3_out=dict(type='str'),
-        scope=dict(type='list', choices=['private', 'public', 'shared']),
+        scope=dict(type='list', elements='str', choices=['private', 'public', 'shared']),
         subnet_control=dict(type='str', choices=['nd_ra', 'no_gw', 'querier_ip', 'unspecified']),
         state=dict(type='str', default='present', choices=['absent', 'present', 'query']),
         tenant=dict(type='str', aliases=['tenant_name']),  # Not required for querying all objects

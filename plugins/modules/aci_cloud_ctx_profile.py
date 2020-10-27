@@ -50,10 +50,11 @@ options:
     description:
     - The name of the cloud region in which to deploy the network construct.
     type: str
-  vpn_gateway:
+  cloud:
     description:
-    - Determine if a VPN Gateway Router will be deployed or not.
-    type: bool
+    - The cloud vendor in which the controller runs.
+    choices: [ aws, azure ]
+    type: str
   state:
     description:
     - Use C(present) or C(absent) for adding or removing.
@@ -68,7 +69,7 @@ extends_documentation_fragment:
 
 EXAMPLES = r'''
 - name: Add a new aci cloud ctx profile
-  aci_cloud_ctx_profile:
+  cisco.aci.aci_cloud_ctx_profile:
     host: apic_host
     username: admin
     password: SomeSecretPassword
@@ -76,12 +77,13 @@ EXAMPLES = r'''
     name: cloud_ctx_profile
     vrf: VRF1
     region: us-west-1
+    cloud: aws
     primary_cidr: '10.0.10.1/16'
     state: present
   delegate_to: localhost
 
 - name: Remove an aci cloud ctx profile
-  aci_cloud_ctx_profile:
+  cisco.aci.aci_cloud_ctx_profile:
     host: apic_host
     username: admin
     password: SomeSecretPassword
@@ -91,7 +93,7 @@ EXAMPLES = r'''
   delegate_to: localhost
 
 - name: Query a specific aci cloud ctx profile
-  aci_cloud_ctx_profile:
+  cisco.aci.aci_cloud_ctx_profile:
     host: apic_host
     username: admin
     password: SomeSecretPassword
@@ -101,7 +103,7 @@ EXAMPLES = r'''
   delegate_to: localhost
 
 - name: Query all aci cloud ctx profile
-  aci_cloud_ctx_profile:
+  cisco.aci.aci_cloud_ctx_profile:
     host: apic_host
     username: admin
     password: SomeSecretPassword
@@ -232,7 +234,7 @@ def main():
         # flow_log=dict(type='str'),
         vrf=dict(type='str'),
         region=dict(type='str'),
-        vpn_gateway=dict(type='bool', default=False)
+        cloud=dict(type='str', choices=['aws', 'azure'])
     )
 
     module = AnsibleModule(
@@ -240,7 +242,7 @@ def main():
         supports_check_mode=True,
         required_if=[
             ['state', 'absent', ['name', 'tenant']],
-            ['state', 'present', ['name', 'tenant', 'vrf', 'region', 'primary_cidr']],
+            ['state', 'present', ['name', 'tenant', 'vrf', 'region', 'primary_cidr', 'cloud']],
         ],
     )
 
@@ -254,7 +256,7 @@ def main():
 
     vrf = module.params.get('vrf')
     region = module.params.get('region')
-    vpn_gateway = module.params.get('vpn_gateway')
+    cloud = module.params.get('cloud')
 
     aci = ACIModule(module)
     aci.construct_url(
@@ -280,25 +282,10 @@ def main():
         child_configs.append(dict(
             cloudRsCtxProfileToRegion=dict(
                 attributes=dict(
-                    tDn="uni/clouddomp/provp-aws/region-{0}".format(region)
+                    tDn="uni/clouddomp/provp-{0}/region-{1}".format(cloud, region)
                 )
             )
         ))
-        if vpn_gateway:
-            child_configs.append(dict(
-                cloudRouterP=dict(
-                    attributes=dict(
-                        name="default"
-                    ),
-                    children=[dict(
-                        cloudIntNetworkP=dict(
-                            attributes=dict(
-                                name="default"
-                            )
-                        )
-                    )]
-                )
-            ))
         child_configs.append(dict(
             cloudCidr=dict(
                 attributes=dict(
@@ -310,7 +297,7 @@ def main():
         aci.payload(
             aci_class='cloudCtxProfile',
             class_config=dict(
-                description=description,
+                descr=description,
                 name=name,
                 name_alias=name_alias,
                 type='regular',
